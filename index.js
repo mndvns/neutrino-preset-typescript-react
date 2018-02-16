@@ -1,10 +1,10 @@
 const merge = require('deepmerge');
-const neutrinoWeb = require('neutrino-preset-web');
+const neutrinoWeb = require('@neutrinojs/web');
 const { join } = require('path');
 
 const MODULES = join(__dirname, 'node_modules');
 
-module.exports = (neutrino, options) => {
+module.exports = (neutrino, options = {}) => {
   neutrino.options.entry = 'index.ts';
 
   neutrino.use(neutrinoWeb);
@@ -78,14 +78,16 @@ module.exports = (neutrino, options) => {
       },
       // production
       (config) => {
-        config.plugin('copy')
-          .tap((args) => {
-            const patt = args[0];
-            const opts = args[1];
-            if (!opts.ignore) { opts.ignore = []; }
-            opts.ignore = opts.ignore.concat(['*.ts', '*.tsx']);
-            return [patt, opts];
-          });
+        if (config.plugins.has('copy')) {
+          config.plugin('copy')
+            .tap((args) => {
+              const patt = args[0];
+              const opts = args[1];
+              if (!opts.ignore) { opts.ignore = []; }
+              opts.ignore = opts.ignore.concat(['*.ts', '*.tsx']);
+              return [patt, opts];
+            });
+        }
       }
     );
 };
